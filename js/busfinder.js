@@ -1,5 +1,7 @@
 $(function(){
 	var Arrival = Backbone.Model.extend({
+		idAttribute: "_id",
+		
 		date: function() {
 			return new Date(Date.parseUtc(this.get('arrival_time')));
 		},
@@ -73,14 +75,15 @@ $(function(){
 			
 			this.collection = new ArrivalList;
 			this.collection.stopId = this.model.get('stopId');
-			this.collection.on('reset', this.addAllArrivals, this);
+			this.collection.on('add', this.addArrival, this);
+			this.collection.on('sync', this.checkForEmpty, this);
 			
 			this.updateArrivalList();
 			setInterval($.proxy(this.updateArrivalList, this), 20000);
 		},
 		
 		updateArrivalList: function() {
-			this.collection.fetch({reset: true, dataType: 'jsonp'});
+			this.collection.fetch({dataType: 'jsonp'});
 		},
 		
 		render: function() {
@@ -88,12 +91,8 @@ $(function(){
 			return this;
 		},
 		
-		addAllArrivals: function() {
-			while(this.arrivalViews.length) this.arrivalViews.pop().remove();
-			
-			if(this.collection.length) {
-				this.collection.each(this.addArrival, this);
-			} else {
+		checkForEmpty: function() {
+			if(!this.collection.length) {
 				this.$('.arrivals')
 				    .html($('<div/>', {
 						class: 'no-arrivals', 
@@ -113,6 +112,11 @@ $(function(){
 		className: 'schedule row-fluid',
 		
 		template: _.template($('#arrival-template').html()),
+		
+		initialize: function() {
+			this.model.on('change', this.render, this);
+			this.model.on('remove', this.remove, this);
+		},
 		
 		render: function() {
 			this.$el.html(this.template({
