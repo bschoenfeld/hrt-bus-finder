@@ -524,6 +524,20 @@ $(function(){
 		}
 	});
 	
+	var FindStopsView = Backbone.View.extend({
+	    id: 'find-stops-view',
+	    
+	    template: _.template($('#find-stops-view-template').html()),
+		
+	    initialize: function() {
+		},
+		
+		render: function() {
+		    this.$el.html(this.template());
+			return this;
+		}
+	});
+	
 	var ContentView = Backbone.View.extend({
 		el: $(".app-container"),
 		
@@ -547,6 +561,7 @@ $(function(){
 			"": "homeView",
 			"stops/*stopIds": "stopView",
 			"routes(/*routeIds)": "routeView",
+			"findStops(/)": "findStopsView"
 		 },
 		
 		homeView: function() {
@@ -564,6 +579,12 @@ $(function(){
 		routeView: function(routeIds) {
 		    this.clearIntervals();
 		    App.ContentView.setSubView(new RouteView({routeIds: routeIds}));
+		    App.MapView.setDraggable(true);
+		},
+		
+		findStopsView: function() {
+		    this.clearIntervals();
+		    App.ContentView.setSubView(new FindStopsView);
 		    App.MapView.setDraggable(true);
 		},
 		
