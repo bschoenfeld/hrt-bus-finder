@@ -562,7 +562,14 @@ $(function(){
 	        this.collection.on('add', this.addStop, this);
 	        App.MapView.clear();
 	        App.MapView.setOnCenterChangedEvent($.proxy(this.findClosestStops, this));
-	        this.locate();
+	        
+	        if(this.options.location) {
+	            App.ContentView.once('contentChanged', function() {
+	                this.onUserLocated(this.options.location);
+	            }, this);
+	        } else {
+                this.locate();
+            }
 		},
 		
 		render: function() {
@@ -571,7 +578,6 @@ $(function(){
 		    App.MapView.$el.height(window.innerHeight - $('.navbar').outerHeight(true) - this.$('#find-options').outerHeight(true));
 			this.$('.mapcanvas').html(App.MapView.el);
 			this.$('.mapcanvas').show();
-			App.MapView.resize();
 			
 			return this;
 		},
@@ -583,6 +589,7 @@ $(function(){
 		},
 		
 		findClosestStops: function(location) {
+		    App.Router.navigate('findStops/' + location.lat() + '/' + location.lng() + '/');
 		    this.collection.url = API_URL + 'stops/near/' + location.lat() + '/' + location.lng() + '/';
 		    this.collection.fetch({dataType: 'jsonp'});
 		},
@@ -592,6 +599,7 @@ $(function(){
 		},
 		
 		onUserLocated: function(location) {
+		    App.Router.navigate('findStops/' + location.lat() + '/' + location.lng() + '/');
 	        App.MapView.createUserMarker(location, true);
 	        App.MapView.resize();
 	        App.MapView.center(location);
@@ -632,7 +640,7 @@ $(function(){
 			"": "homeView",
 			"stops/*stopIds": "stopView",
 			"routes(/*routeIds)": "routeView",
-			"findStops(/)": "findStopsView"
+			"findStops(/:lat/:lng)(/)": "findStopsView"
 		 },
 		
 		homeView: function() {
@@ -653,9 +661,10 @@ $(function(){
 		    App.MapView.setDraggable(true);
 		},
 		
-		findStopsView: function() {
+		findStopsView: function(lat, lng) {
 		    this.clearIntervals();
-		    App.ContentView.setSubView(new FindStopsView);
+		    var location = lat && lng && new google.maps.LatLng(lat, lng);
+		    App.ContentView.setSubView(new FindStopsView({location: location}));
 		    App.MapView.setDraggable(true);
 		},
 		
