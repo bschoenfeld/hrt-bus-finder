@@ -416,7 +416,7 @@ $(function(){
 		}
 	});
 	
-	var LocateUser = function(onLocated, context) {
+	var LocateUser = function(onLocated) {
 	    var onSuccess = function(position) {
 	        onLocated(new google.maps.LatLng(position.coords.latitude, position.coords.longitude));
 	    };
@@ -426,8 +426,7 @@ $(function(){
 	    };
 	    
 	    navigator.geolocation ?
-			navigator.geolocation.getCurrentPosition($.proxy(onSuccess, context), $.proxy(onFail, context)) :
-			$.proxy(onFail, context);
+			navigator.geolocation.getCurrentPosition(onSuccess, onFail) : onFail();
 	};
 	
 	var HomeView = Backbone.View.extend({
