@@ -593,9 +593,9 @@ $(function(){
 		
 		onUserLocated: function(location) {
 	        App.MapView.createUserMarker(location, true);
+	        App.MapView.resize();
 	        App.MapView.center(location);
 	        App.MapView.zoom(17);
-	        App.MapView.resize();
 	        this.findClosestStops(location);
 	    },
 		
