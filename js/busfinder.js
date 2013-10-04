@@ -416,25 +416,26 @@ $(function(){
 		}
 	});
 	
-	var LocateUser = function(success, fail, context) {
+	var LocateUser = function(onLocated, context) {
+	    var onSuccess = function(position) {
+	        onLocated(new google.maps.LatLng(position.coords.latitude, position.coords.longitude));
+	    };
+	    
+	    var onFail = function() {
+	        onLocated(DowntownNorfolk);
+	    };
+	    
 	    navigator.geolocation ?
-			navigator.geolocation.getCurrentPosition($.proxy(success, context), $.proxy(fail, context)) :
-			$.proxy(fail, context);
+			navigator.geolocation.getCurrentPosition($.proxy(onSuccess, context), $.proxy(onFail, context)) :
+			$.proxy(onFail, context);
 	};
 	
 	var HomeView = Backbone.View.extend({
 	    id: 'stops',
 	    
 		initialize: function() {
-		    LocateUser(this.geolocationSuccess, this.geolocationFail, this);
-		},
-		
-		geolocationSuccess: function(position) {
-			this.getStopList(new google.maps.LatLng(position.coords.latitude, position.coords.longitude));
-		},
-		
-		geolocationFail: function() {
-			this.getStopList(DowntownNorfolk);
+		    _.bindAll(this);
+		    LocateUser(this.getStopList, this);
 		},
 		
 		getStopList: function(location) {
