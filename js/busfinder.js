@@ -207,7 +207,7 @@ $(function(){
 			this.markers.push(userMarker);
 	    },
 	    
-	    createStopMarker: function(stop, animate) {
+	    createStopMarker: function(stop, animate, onClick) {
 	        var stopPosition = new google.maps.LatLng(stop.get('location')[1], stop.get('location')[0]);
 			var stopMarker = new google.maps.Marker({
 				position: stopPosition,
@@ -215,6 +215,9 @@ $(function(){
 				map: this.map,
 				icon: './img/busstop.png'
 			});
+			
+			onClick && google.maps.event.addListener(stopMarker, 'click', onClick);
+			
 			this.markers.push(stopMarker);
 	    },
 	    
@@ -574,7 +577,9 @@ $(function(){
 		},
 		
 		addStop: function(stop) {
-		    App.MapView.createStopMarker(stop, true);
+		    App.MapView.createStopMarker(stop, true, function() {
+		        App.Router.navigate('stops/' + stop.get('stopId'), {trigger: true});
+		    });
 		},
 		
 		findClosestStops: function(location) {
