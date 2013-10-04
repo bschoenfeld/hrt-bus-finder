@@ -173,9 +173,21 @@ $(function(){
 			this.markers = [];
 			this.busMarkers = {};
 			this.oldBusMarkers = {};
+			
+			google.maps.event.addListener(this.map, 'dragend', $.proxy(this.centerChanged, this));
+		},
+		
+		setOnCenterChangedEvent: function(onCenterChanged) {
+		    this.onCenterChanged = onCenterChanged;
+		},
+		
+		centerChanged: function() {
+		    if(this.onCenterChanged) this.onCenterChanged(this.map.getCenter());
 		},
 	    
 	    clear: function() {
+	        this.setOnCenterChangedEvent(null);
+	        
 	        while(this.markers.length) {
 	            this.markers.pop().setMap(null);
             }
@@ -542,6 +554,8 @@ $(function(){
 		
 	    initialize: function() {
 	        this.collection = new Backbone.Collection;
+	        App.MapView.clear();
+	        App.MapView.setOnCenterChangedEvent($.proxy(this.addStops, this));
 	        this.locate();
 		},
 		
@@ -556,9 +570,13 @@ $(function(){
 			return this;
 		},
 		
+		addStops: function(location) {
+		    this.collection.url = API_URL + 'stops/near/' + location.lat() + '/' + location.lng() + '/';
+		    this.collection.fetch({dataType: 'jsonp'});
+		},
+		
 		locate: function() {
 		    LocateUser(function(location){
-		        App.MapView.clear();
 		        App.MapView.center(location);
 		        App.MapView.zoom(17);
 		        App.MapView.resize();
