@@ -324,7 +324,11 @@ $(function(){
 	    },
 	    
 	    center: function(location) {
-	        this.map.setCenter(location);
+	        if(location) {
+	            this.map.setCenter(location);
+            } else {
+                return this.map.getCenter();
+            }
 	    },
 	    
 	    resize: function() {
@@ -612,8 +616,16 @@ $(function(){
 		    var city = this.$('#city').val();
 		    if(intersection == '') return;
 		    
+		    App.MapView.clear();
+		    this.collection.once('sync', this.onSearchFinished, this);
 		    this.collection.url = API_URL + 'stops/near/intersection/' + city + '/' + intersection + '/';
 		    this.collection.fetch({dataType: 'jsonp'});
+		},
+		
+		onSearchFinished: function() {
+		    App.MapView.setBounds();
+		    var location = App.MapView.center();
+		    App.Router.navigate('findStops/' + location.lat() + '/' + location.lng() + '/');
 		}
 	});
 	
