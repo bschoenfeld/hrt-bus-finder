@@ -536,6 +536,12 @@ $(function(){
 		
 		render: function() {
 		    this.$el.html(this.template());
+		    
+		    App.MapView.$el.height(window.innerHeight - $('.navbar').outerHeight(true) - this.$('#find-options').outerHeight(true));
+			this.$('.mapcanvas').html(App.MapView.el);
+			this.$('.mapcanvas').show();
+			App.MapView.resize();
+			
 			return this;
 		}
 	});
