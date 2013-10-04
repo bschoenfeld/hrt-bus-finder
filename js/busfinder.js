@@ -416,15 +416,17 @@ $(function(){
 		}
 	});
 	
+	var LocateUser = function(success, fail, context) {
+	    navigator.geolocation ?
+			navigator.geolocation.getCurrentPosition($.proxy(success, context), $.proxy(fail, context)) :
+			$.proxy(fail, context);
+	};
+	
 	var HomeView = Backbone.View.extend({
 	    id: 'stops',
 	    
 		initialize: function() {
-			_.bindAll(this);
-			
-			navigator.geolocation ?
-				navigator.geolocation.getCurrentPosition(this.geolocationSuccess, this.geolocationFail):
-				this.getStopList(DowntownNorfolk);
+		    LocateUser(this.geolocationSuccess, this.geolocationFail, this);
 		},
 		
 		geolocationSuccess: function(position) {
