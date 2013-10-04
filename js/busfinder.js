@@ -314,6 +314,10 @@ $(function(){
 			google.maps.event.trigger(this.map, 'resize');
 	    },
 	    
+	    zoom: function(zoom) {
+	        this.map.setZoom(zoom);
+	    },
+	    
 	    setDraggable: function(flag) {
 	        this.map.setOptions({
 	            draggable: flag, 
@@ -434,7 +438,7 @@ $(function(){
 	    
 		initialize: function() {
 		    _.bindAll(this);
-		    LocateUser(this.getStopList, this);
+		    LocateUser(this.getStopList);
 		},
 		
 		getStopList: function(location) {
@@ -531,7 +535,12 @@ $(function(){
 	    
 	    template: _.template($('#find-stops-view-template').html()),
 		
+		events: {
+			'click #locate': 'locate'
+		},
+		
 	    initialize: function() {
+	        this.locate();
 		},
 		
 		render: function() {
@@ -543,6 +552,15 @@ $(function(){
 			App.MapView.resize();
 			
 			return this;
+		},
+		
+		locate: function() {
+		    LocateUser(function(location){
+		        App.MapView.clear();
+		        App.MapView.center(location);
+		        App.MapView.zoom(17);
+		        App.MapView.resize();
+		    });
 		}
 	});
 	
