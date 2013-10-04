@@ -536,10 +536,12 @@ $(function(){
 	    template: _.template($('#find-stops-view-template').html()),
 		
 		events: {
-			'click #locate': 'locate'
+			'click #locate': 'locate',
+			'click #search': 'search'
 		},
 		
 	    initialize: function() {
+	        this.collection = new Backbone.Collection;
 	        this.locate();
 		},
 		
@@ -561,6 +563,15 @@ $(function(){
 		        App.MapView.zoom(17);
 		        App.MapView.resize();
 		    });
+		},
+		
+		search: function() {
+		    var intersection = this.$('#intersection').val();
+		    var city = this.$('#city').val();
+		    if(intersection == '') return;
+		    
+		    this.collection.url = API_URL + 'stops/near/intersection/' + city + '/' + intersection + '/';
+		    this.collection.fetch({dataType: 'jsonp'});
 		}
 	});
 	
