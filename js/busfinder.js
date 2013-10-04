@@ -198,18 +198,20 @@ $(function(){
             });
 	    },
 	    
-	    createUserMarker: function(location) {
+	    createUserMarker: function(location, animate) {
 	        var userMarker = new google.maps.Marker({
 				position: location,
+				animation: animate && google.maps.Animation.DROP,
 				map: this.map
 			});
 			this.markers.push(userMarker);
 	    },
 	    
-	    createStopMarker: function(stop) {
+	    createStopMarker: function(stop, animate) {
 	        var stopPosition = new google.maps.LatLng(stop.get('location')[1], stop.get('location')[0]);
 			var stopMarker = new google.maps.Marker({
 				position: stopPosition,
+				animation: animate && google.maps.Animation.DROP,
 				map: this.map,
 				icon: './img/busstop.png'
 			});
@@ -554,8 +556,9 @@ $(function(){
 		
 	    initialize: function() {
 	        this.collection = new Backbone.Collection;
+	        this.collection.on('add', this.addStop, this);
 	        App.MapView.clear();
-	        App.MapView.setOnCenterChangedEvent($.proxy(this.addStops, this));
+	        App.MapView.setOnCenterChangedEvent($.proxy(this.findClosestStops, this));
 	        this.locate();
 		},
 		
@@ -570,18 +573,26 @@ $(function(){
 			return this;
 		},
 		
-		addStops: function(location) {
+		addStop: function(stop) {
+		    App.MapView.createStopMarker(stop, true);
+		},
+		
+		findClosestStops: function(location) {
 		    this.collection.url = API_URL + 'stops/near/' + location.lat() + '/' + location.lng() + '/';
 		    this.collection.fetch({dataType: 'jsonp'});
 		},
 		
 		locate: function() {
-		    LocateUser(function(location){
-		        App.MapView.center(location);
-		        App.MapView.zoom(17);
-		        App.MapView.resize();
-		    });
+		    LocateUser($.proxy(this.onUserLocated, this));
 		},
+		
+		onUserLocated: function(location) {
+	        App.MapView.createUserMarker(location, true);
+	        App.MapView.center(location);
+	        App.MapView.zoom(17);
+	        App.MapView.resize();
+	        this.findClosestStops(location);
+	    },
 		
 		search: function() {
 		    var intersection = this.$('#intersection').val();
