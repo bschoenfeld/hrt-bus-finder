@@ -174,11 +174,20 @@ $(function(){
 			this.busMarkers = {};
 			this.oldBusMarkers = {};
 			
-			google.maps.event.addListener(this.map, 'dragend', $.proxy(this.centerChanged, this));
+			google.maps.event.addListener(this.map, 'dragstart', $.proxy(this.cancelCenterChanged, this));
+			google.maps.event.addListener(this.map, 'dragend', $.proxy(this.readyCenterChanged, this));
 		},
 		
 		setOnCenterChangedEvent: function(onCenterChanged) {
 		    this.onCenterChanged = onCenterChanged;
+		},
+		
+		readyCenterChanged: function() {
+		    this.centerChangedTimeout = setTimeout($.proxy(this.centerChanged, this), 1000);
+		},
+		
+		cancelCenterChanged: function() {
+		    this.centerChangedTimeout && clearTimeout(this.centerChangedTimeout);
 		},
 		
 		centerChanged: function() {
