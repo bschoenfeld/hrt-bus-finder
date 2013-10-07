@@ -48,6 +48,10 @@ $(function(){
 		}
 	});
 	
+	var Stop = Backbone.Model.extend({
+		idAttribute: "_id"
+	});
+	
 	var API_URL = 'http://lit-inlet-3610.herokuapp.com/api/'
 	var ArrivalList = Backbone.Collection.extend({ 
 		model: Arrival,
@@ -571,7 +575,7 @@ $(function(){
 		},
 		
 	    initialize: function() {
-	        this.collection = new Backbone.Collection;
+	        this.collection = new Backbone.Collection([], {model: Stop});
 	        this.collection.on('add', this.addStop, this);
 	        this.collection.once('sync', function() {App.MapView.setBounds();}, this);
 	        
@@ -606,7 +610,7 @@ $(function(){
 		findClosestStops: function(location) {
 		    App.Router.navigate('findStops/' + location.lat() + '/' + location.lng() + '/');
 		    this.collection.url = API_URL + 'stops/near/' + location.lat() + '/' + location.lng() + '/';
-		    this.collection.fetch({dataType: 'jsonp'});
+		    this.collection.fetch({remove: false, dataType: 'jsonp'});
 		},
 		
 		locate: function() {
