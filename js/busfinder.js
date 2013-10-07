@@ -573,6 +573,8 @@ $(function(){
 	    initialize: function() {
 	        this.collection = new Backbone.Collection;
 	        this.collection.on('add', this.addStop, this);
+	        this.collection.once('sync', function() {App.MapView.setBounds();}, this);
+	        
 	        App.MapView.clear();
 	        App.MapView.setOnCenterChangedEvent($.proxy(this.findClosestStops, this));
 	        
