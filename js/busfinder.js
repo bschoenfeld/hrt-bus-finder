@@ -490,8 +490,14 @@ $(function(){
 	        onLocated(DowntownNorfolk);
 	    };
 	    
+        var options = {
+            enableHighAccuracy: false,
+            timeout: 5000,
+            maximumAge: 0
+        };
+        
 	    navigator.geolocation ?
-			navigator.geolocation.getCurrentPosition(onSuccess, onFail) : onFail();
+			navigator.geolocation.getCurrentPosition(onSuccess, onFail, options) : onFail();
 	};
 	
 	var HomeView = Backbone.View.extend({
